@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <conio.h>
 #include <Windows.h>
 
 #define GAMESTART 1
@@ -81,7 +82,11 @@ void Prollog()
 	WaitSecond(1.5);
 	printf("머리가 깨질 듯이 아파왔고, 어제의 기억이 나질 않는다.\n");
 	WaitSecond(1.5);
-	printf("한번.. 주변을 둘러보자.. \n");
+	printf("한번.. 주변을 둘러보자.. \n\n");
+	
+	printf("계속 하려면 아무 키나 누르시오...\n\n");
+	getch();
+	
 	return; 
 }
 
@@ -89,6 +94,7 @@ void FirstStage()
 {
 	while (1)
 	{
+		Clear();
 		RenderLine();
 		printf("[감옥]\n\n");
 		printf("방안의 물건들을 살펴본다.\n\n");
@@ -100,7 +106,8 @@ void FirstStage()
 		switch(g_select)
 		{
 			case 1: IRON_GATE(); break;
-				
+			default:
+				printf("좆까");
 		}
 	}
 }
@@ -130,6 +137,8 @@ void IRON_GATE() {
 				break;
 			case 2:
 				return;
+			default:
+				printf("좆까");
 		}
 	}
 	
