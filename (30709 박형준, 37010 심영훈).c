@@ -1,354 +1,393 @@
 #include <stdio.h>
-#include <conio.h>
 #include <Windows.h>
+#include <conio.h>
 
-#define GAMESTART 1
-#define GAMEEXIT 2
+// 메뉴 선택 
+#define m_Start 1
+#define m_Exit 0
 
-void RenderLine();		// 라인 그리기 
-void WaitSecond(float); 	// 1초 기다리는 함수 
-void Prollog(); 		// 프롤로그
-void FirstStage(); 		// 첫번째 스테이지 
-void Clear();
+// 비밀번호 
+#define PassWord 031231 
 
-void WaitSecond(float _second) {
-	Sleep(_second * 0);
+// 방에서 접근가능한 장소 
+#define DT_Inven	1000 
+#define DT_TV 		1001	 
+#define DT_ToolBox 	1002
+#define DT_Door		1003
+
+// 오브잭트
+#define DO_Memo 		2000
+#define DO_DirtyCoat 	2001
+#define DO_Password		2002
+#define DO_Humun 		2010
+	#define DO_MoneyPocket 	2011
+
+// 아이템
+#define DI_Hammer 	3000
+#define DI_Pench 	3001
+#define DI_Top 		3002
+
+#define DI_Memo		3005 
+
+#define DI_PeopleCard	4000
+#define DI_Money 		4001
+
+int g_Select;
+
+int complete = 1;
+
+int passwordInput = 0;
+
+void GameStart(); // 게임 시작 함수
+void Prologue();	// 프롤로그
+
+void Clear()
+{
+	system("cls");
 }
 
-enum Item
+// 인벤토리 
+int inven;
+
+void T_Inven();		// 인벤토리
+ 
+void T_TV();		// 티비 
+	void O_Memo();	// 메모지 
+void T_ToolBox();	// 공구상자 
+		void I_Hammer();	// 해머
+		void I_Pench();		// 펜치
+		void I_Top();		// 톱 
+void T_Cabinet(); 	// 캐비넷
+	void O_DirtyCoat();	// 더러운 코트 
+	void O_Humun();		// 사람시체 
+		void O_MoneyPocket();		// 지갑 
+			void I_PeopleCard();	// 주민등록증
+			void I_Money();			// 돈
+void T_Door();	// 문
+	void O_Password();	// 문 비밀번호 입력
+
+void InputGetch()
 {
-	Hammer
-};
+	printf("계속 하려면 아무 키나 누르시오...\n\n");
+	getch();
+}
+ 
+void WaitSecond(float _seconds)
+{
+	Sleep(_seconds * 0);
+}
 
-/* 첫번째 스테이지 오브젝트 */
-void VENT();			// 환풍구   1
-void BED();				// 침대     2
-void WASHSTAND();		// 세면대   3
-void TOILET();			// 변기     4
-void LIGHT();			// 조명     5
-void IRON_GATE();		// 철문     6
-void CHANGSAL();		// 창살     7
-void SHELF();			// 선반     8
+void RenderLine()
+{
+	printf("\n====================================================================================\n\n");
+}
 
-int g_select;
-
-int inven[20] = { 0, };
-
+void ErrorMessage()
+{
+	printf("입력에러 [ERROR]\n\n");
+}
+ 
 int main(void)
-{	
+{
 	int menu;
 	
-	while (1)
+	do
 	{
+		Clear();
 		RenderLine();
-		printf("제목 : 검은 방\n");
-		printf("[제작 : 박형준 원맨팀]\n\n");
-		printf("1. 게임 시작\n");
-		printf("2. 게임 나가기\n\n");
-		printf(">>> ");
-		
+		printf("TITLE : 검은방\n\n");
+		printf("1. 게임시작    2. 게임종료\n\n");
+		printf(">>> "); 
 		scanf("%d", &menu);
-		
 		switch(menu)
 		{
-			case GAMESTART:
-				system("cls");
-				Prollog();
-				FirstStage();
+			case m_Start:
+				GameStart();
 				break;
-			case GAMEEXIT:
+			case m_Exit:
+				printf("종료 되었습니다.");
 				return 0;
 			default:
-				system("cls");
-				printf("\n.\n");
-				WaitSecond(3);
-				return 0;
-		}
-	}
+				ErrorMessage();
+				 
+		} 
+	} while (complete);
 	
 	return 0;
 }
 
-void RenderLine() {
-	printf("\n=====================================================================\n\n");
-} 
-
-void Clear() {
-	system("cls");
+void GameStart()
+{
+	Clear();
+	Prologue();
+	
+	while (1)
+	{
+		Clear();
+		RenderLine();
+		printf("[방]\n\n");
+		printf("1. TV    2. 공구상자    3. 문    0. 인벤토리\n\n");
+		printf(">>> ");
+		scanf("%d", &g_Select);
+		g_Select += 1000;
+		
+		switch(g_Select)
+		{
+			case DT_TV:
+				T_TV();
+				break;
+			case DT_ToolBox:
+				T_ToolBox();
+				break;
+			case DT_Door:
+				T_Door();
+				
+				if (complete) {
+					Clear();
+					RenderLine();
+					printf("[끝]\n\n");
+					printf("게임 클리어!\n\n");
+					InputGetch();
+					Clear(); 
+					return;
+				}
+				
+				break;
+			case DT_Inven:
+				if (inven == DI_Memo)
+				{
+					Clear();
+					RenderLine();
+					printf("[메모]\n\n");
+					printf("메모에 031231이라 적혀있다.");
+					InputGetch();
+					break; 
+				}
+				else
+				{
+					printf("별로 의미 없다.\n");
+					InputGetch(); 
+				}
+			default:
+				break;
+		}
+	}	 
 }
 
-void Prollog()
+void Prologue()
 {
 	printf("[프롤로그]\n\n"); 
 	printf("2020년 8월 20일.\n\n");
 	WaitSecond(1.8);
 	printf("나는 사형 선고를 받았다.\n");
 	WaitSecond(1.5);
-	printf("눈을 떠보니 녹슨 철창과 더러운 침대가 보인다.\n");
+	printf("눈을 떠보니 컴퓨터외 공구상자가 보인다.\n");
 	WaitSecond(1.5);
 	printf("모든 것이 낯선 공간..\n");
 	WaitSecond(1.5);
 	printf("머리가 깨질 듯이 아파왔고, 어제의 기억이 나질 않는다.\n");
 	WaitSecond(1.5);
 	printf("한번.. 주변을 둘러보자.. \n\n");
+	InputGetch();
 	
-	printf("계속 하려면 아무 키나 누르시오...\n\n");
-	getch();
-	
-	return; 
+	return;
 }
 
-void FirstStage()
+void T_TV()
 {
+	Clear();
+	RenderLine();
+	printf("[TV]\n\n");
+	printf("1. 살펴본다    2. 돌아가기\n\n");
+	printf(">>> ");
+	scanf("%d", &g_Select);
+	
 	while (1)
 	{
-		Clear();
-		RenderLine();
-		printf("[감옥]\n\n");
-		printf("방안의 물건들을 살펴본다.\n\n");
-		printf("1. 철문     2. 침대     3. 세면대    4. 변기\n");
-		printf("5. 조명     6. 창살     7. 선반\n\n");
-		printf(">>> ");
-		scanf("%d", &g_select);
-		
-		switch(g_select)
+		switch(g_Select)
 		{
-			case 1: IRON_GATE(); break;
-            case 2: BED(); break;
-            case 3: WASHSTAND(); break;
-            case 4: TOILET(); break;
-            case 5: LIGHT(); break;
-            case 6: CHANGSAL(); break;
-            case 7: SHELF(); break;
-			default:
-				printf("");
+		case 1:
+			Clear();
+			RenderLine();
+			printf("[TV]\n\n");
+			
+			printf("1. 부순다.    2. 돌아간다.\n\n");
+			printf(">>> ");
+			scanf("%d", &g_Select);
+			switch(g_Select)
+			{
+				case 1:
+					Clear();
+					RenderLine();
+					printf("[TV]\n\n");
+					if (inven == DI_Hammer)
+					{
+						printf("해머는 부서지고 무언가 떨어져있다.\n\n");
+						printf("메모를 획득했다.\n\n");
+						printf(">>> ");
+						getch();
+						inven = DI_Memo;
+					}
+					else 
+					{
+						printf("부수려면 무언가 필요할 것 같다.\n\n");
+						InputGetch();
+						break; 
+					}
+					break;
+				case 2:
+					return;
+				default:
+					ErrorMessage();
+					break;
+			 }
+		case 2:
+			printf("돌아간다.\n\n");
+				InputGetch();
+				return;
+		default:
+			ErrorMessage();
+			break;
+			
 		}
 	}
 }
 
-void IRON_GATE() {
-	system("cls");
+void T_ToolBox()
+{
+	Clear();
 	RenderLine();
-	printf("[철문]\n\n");
-	printf("차갑고 딱딱한 철문이다.\n\n");
+	printf("[공구상자]\n\n");
+	printf("1. 열어본다    2. 돌아가기\n\n");
+	printf(">>> ");
+	scanf("%d", &g_Select);
 	
 	while (1)
 	{
-		
-		printf("1. 문을 살펴본다     2. 돌아가기\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[철문]\n\n");
-				printf("자물쇠로 잠겨있다.\n");
-				WaitSecond(0.5);
-				printf("\'열쇠\'를 찾아야 할 것 같다.\n\n");
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
+		switch(g_Select)
+		{
+		case 1:
+			Clear();
+			RenderLine();
+			printf("[공구상자 안]\n\n");
+			
+			printf("1. 해머    2. 펜치    3. 톱   4. 돌아간다.\n\n");
+			printf(">>> ");
+			scanf("%d", &g_Select);
+			Clear();
+			RenderLine();
+			switch(g_Select)
+			{
+				case 1:
+					printf("[해머]\n\n");
+					printf("1. 가져간다   2. 가져가지않는다.\n\n");
+					printf(">>> ");
+					scanf("%d", &g_Select);
+					
+					Clear();
+					RenderLine();
+					printf("[해머]\n\n");
+					
+					switch(g_Select)
+					{
+						case 1:
+							if (inven == DI_Hammer)
+							{
+								printf("이미 해머를 지니고있다.\n\n");
+								InputGetch();
+							}
+							else
+							{
+								inven = DI_Hammer;
+								printf("해머를 획득했다.");
+							}
+						case 2:
+							printf("돌아간다.\n\n");
+							InputGetch();
+							break; 
+					}
+					break;
+				case 2:
+					printf("[펜치]\n\n");
+					printf("펜치가 있다.\n\n");
+					InputGetch();
+					break;
+				case 3:
+					printf("[톱]\n\n");
+					printf("톱이 있다.\n\n");
+					InputGetch();
+					break;
+				case 4:
+					printf("돌아간다.\n\n");
+					InputGetch();
+					return;
+				default:
+					ErrorMessage();
+					break;
+			 }
+		case 2:
+			printf("돌아간다.\n\n");
+			InputGetch();
+			return;
+		default:
+			ErrorMessage();
+			break;
 		}
 	}
 }
 
-void BED() {
-	system("cls");
+void T_Door()
+{
+	Clear();
 	RenderLine();
-	printf("[침대]\n\n");
-	printf("슈퍼싱글 사이즈의 침대가 있다.\n\n");
+	printf("[문]\n\n");
+	printf("1. 살펴본다    2. 돌아가기\n\n");
+	printf(">>> ");
+	scanf("%d", &g_Select);
 	
 	while (1)
 	{
-		
-		printf("1. 침대를 살펴본다     2. 돌아가기\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[침대]\n\n");
-				printf("아무런 관련이 없는듯하다.\n");
-				WaitSecond(0.5);
-				printf("부술 수 있는 물건을 찾아볼까..\n\n");
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
-		}
-	}
-}
-
-
-void WASHSTAND() {
-	system("cls");
-	RenderLine();
-	printf("[세면대]\n\n");
-	printf("\n\n");
-	
-	while (1)
-	{
-		printf("1. 세면대를 살펴본다     2. 돌아가기\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[세면대]\n\n");
-				printf("물이 나오지 않을 것 같은 세면대다.\n");
-				WaitSecond(0.5);
-                printf("수도꼭지를 한 번 돌려볼까..\n\n");
-                printf("1. 가만히 둔다.    2. 수도꼭지를 돌린다.\n\n");
-                printf(">>> ");
-                scanf("%d", &g_select);
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
-		}
-	}
-}
-
-void TOILET() {
-	system("cls");
-	RenderLine();
-	printf("[변기]\n\n");
-	printf("\n\n");
-	
-	while (1)
-	{ 
-		printf("1. 변기를 만져본다     2. 돌아가기\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[변기]\n\n");
-				printf("더러운 변기다.\n");
-				printf("오랫동안 사용하지 않은 것 같다.\n\n");
-				WaitSecond(0.5);
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
-		}
-	}
-}
-
-
-void LIGHT() {
-	system("cls");
-	RenderLine();
-	printf("[전구]\n\n");
-	printf("\n\n");
-	
-	while (1)
-	{
-		printf("1. 전구를 바라본다     2. 돌아가기\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[전구]\n\n");
-				printf("눈부신 전구다.\n");
-				WaitSecond(0.5);
-				printf("... 눈이 아프니 다른 오브젝트를 살펴보자.\n\n");
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
-		}
-	}
-}
-
-void SHELF() {
-	static int shelf_Check = 1; 
-	system("cls");
-	RenderLine();
-	printf("[선반]\n\n");
-	printf("선반이다. 어떻게 할까?\n\n"); 
-	
-	while (1)
-	{
-		printf("1. 열어본다.     2. 돌아간다.\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[선반]\n\n");
-				if (shelf_Check)
-				{
-					printf("불쾌한 소음과 함께 선반이 무너졌다.\n");
-					printf("\'망치\'를 획득 했다.\n\n");
-					shelf_Check = 0;
-					WaitSecond(0.5);
-				}
-				else
-				{
-					printf("무너진 선반이다.\n\n"); 
-				}
-				
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
-		}
-	}
-}
-
-void CHANGSAL() {
-	system("cls");
-	RenderLine();
-	printf("[창살]\n\n");
-	printf("\n\n");
-	
-	while (1)
-	{
-		printf("1. 창살을 만져본다     2. 돌아가기\n\n");
-		printf(">>> ");
-		
-		scanf("%d", &g_select);
-		system("cls");
-		
-		switch(g_select){
-			case 1:
-				RenderLine();
-				printf("[창살]\n\n");
-				printf("차갑고 까칠한 창살이다.\n");
-				WaitSecond(0.5);
-				printf("왠지 불길한 느낌이 든다.\n\n"); 
-				break;
-			case 2:
-				return;
-			default:
-				printf("");
+		switch(g_Select)
+		{
+		case 1:
+			Clear();
+			RenderLine();
+			printf("[문]\n\n");
+			printf("비밀번호 잠금장치가 걸려있다.\n\n");
+			printf("1. 살펴본다.    2. 돌아간다.\n\n");
+			printf(">>> ");
+			scanf("%d", &g_Select);
+			switch(g_Select)
+			{
+				case 1:
+					Clear();
+					RenderLine();
+					printf("[잠금장치]\n\n");
+					printf(" 비밀번호를 입력 하시오.\n\n");
+					printf(">>> ");
+					scanf("%d", &passwordInput);
+					
+					if (passwordInput == PassWord)
+					{
+						complete = 0;
+						return;
+					}
+					break;
+				case 2:
+					return;
+				default:
+					ErrorMessage();
+					break;
+			 }
+			 break;
+		case 2:
+			printf("돌아간다.\n\n");
+			InputGetch();
+			return;
+		default:
+			InputGetch();
+			break;
+			
 		}
 	}
 }
